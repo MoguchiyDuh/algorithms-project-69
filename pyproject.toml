@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "search-engine"
+version = "0.1.0"
+description = ""
+authors = ["Moguchiy_Duh <kirnekrasov12@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pytest = "^8.3.3"
+flake8 = "^7.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
