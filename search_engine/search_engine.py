@@ -29,3 +29,20 @@ def search(docs: dict, words: str) -> list:
             print(number_of_entries)
 
     return sort_by_values_desc(result)
+
+
+def reverse_index(docs: dict) -> dict:
+    doc_ids_dict = {}
+
+    for doc in docs:
+        text: str = doc["text"]
+        words: list[str] = text.split(" ")
+        print(words)
+        for word in words:
+            if word in doc_ids_dict:
+                if doc["id"] not in doc_ids_dict[word]:
+                    doc_ids_dict[word] += [doc["id"]]
+            else:
+                doc_ids_dict[word] = [doc["id"]]
+
+    return doc_ids_dict
