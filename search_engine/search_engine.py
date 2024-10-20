@@ -1,48 +1,60 @@
+import math
 import re
 import string
 
 
-def search(docs: dict, words: str) -> list:
+def return_tf(text: str, word: str) -> float:
+    words = text.split()
+    word_count = len(words)
+    return words.count(word) / word_count if word_count != 0 else 0
+
+
+def return_idf(docs: list[dict], word: str) -> float:
+    num_docs_with_word = 0
+    for doc in docs:
+        if re.search(rf"\b{word}\b", doc["text"], re.IGNORECASE):
+            num_docs_with_word += 1
+    result = len(docs) / (1 + num_docs_with_word)
+    return math.log(result)
+
+
+def search(docs: list[dict], words: str) -> list:
+    translator = str.maketrans("", "", string.punctuation)
+    words_list = words.translate(translator).lower().split()
+
     result = {}
 
-    def sort_by_values_desc(dict_to_sort: dict) -> list:
-        return [
-            key
-            for key, value in sorted(
-                dict_to_sort.items(), key=lambda item: item[1], reverse=True
-            )
-        ]
-
-    translator = str.maketrans("", "", string.punctuation)
-    words_list = words.translate(translator).split(" ")
     for doc in docs:
-        print(doc)
-        number_of_entries = 0
+        text_cleaned: str = doc["text"].translate(translator).lower()
+        tfidf_score = 0.0
+
         for word in words_list:
-            print(word)
-            pattern = rf"\b{word}\b"
-            entries = re.findall(pattern, doc["text"], re.IGNORECASE)
-            if entries:
-                number_of_entries += len(entries)
-        if number_of_entries != 0:
-            result[doc["id"]] = number_of_entries
-            print(number_of_entries)
+            tf = return_tf(text_cleaned, word)
+            idf = return_idf(docs, word)
+            tfidf_score += tf * idf
 
-    return sort_by_values_desc(result)
+        if tfidf_score > 0:
+            result[doc["id"]] = tfidf_score
+
+    return [
+        doc_id
+        for doc_id, _ in sorted(result.items(), key=lambda item: item[1], reverse=True)
+    ]
 
 
-def reverse_index(docs: dict) -> dict:
-    doc_ids_dict = {}
+# def reverse_index(docs: list[dict]) -> dict:
+#     docs_pre_word_list = {}
 
-    for doc in docs:
-        text: str = doc["text"]
-        words: list[str] = text.split(" ")
-        print(words)
-        for word in words:
-            if word in doc_ids_dict:
-                if doc["id"] not in doc_ids_dict[word]:
-                    doc_ids_dict[word] += [doc["id"]]
-            else:
-                doc_ids_dict[word] = [doc["id"]]
+#     translator = str.maketrans("", "", string.punctuation)
 
-    return doc_ids_dict
+#     for doc in docs:
+#         words_list = doc["text"].translate(translator).lower().split()
+
+#         for word in words_list:
+#             if word not in docs_pre_word_list:
+#                 docs_pre_word_list[word] = []
+
+#             if doc["id"] not in docs_pre_word_list[word]:
+#                 docs_pre_word_list[word].append(doc["id"])
+
+#     return docs_pre_word_list
