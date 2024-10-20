@@ -1,10 +1,11 @@
 import re
 
 
-def search(texts: dict, str_to_find: str) -> list:
+def search(docs: dict, str_to_find: str) -> list:
     result = []
-    for text in texts:
-        pattern = rf"\b{str_to_find}\b"
-        if re.findall(pattern, text["text"]):
-            result.append(text["id"])
+    query = re.escape(str_to_find.rstrip(".,!?"))
+    for doc in docs:
+        pattern = rf"\b{query}\b"
+        if re.findall(pattern, doc["text"], re.IGNORECASE):
+            result.append(doc["id"])
     return result
